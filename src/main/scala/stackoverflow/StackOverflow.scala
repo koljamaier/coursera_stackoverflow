@@ -24,8 +24,10 @@ object StackOverflow extends StackOverflow {
     val raw     = rawPostings(lines)
     val grouped = groupedPostings(raw)
     val scored  = scoredPostings(grouped)
+    //scored.take(15).foreach(println)
     val vectors = vectorPostings(scored)
-//    assert(vectors.count() == 2121822, "Incorrect number of vectors: " + vectors.count())
+    assert(vectors.count() == 2121822, "Incorrect number of vectors: " + vectors.count()) //1042132
+    println("Assertion passed")
 
     val means   = kmeans(sampleVectors(vectors), vectors, debug = true)
     val results = clusterResults(means, vectors)
@@ -87,10 +89,10 @@ class StackOverflow extends Serializable {
       .filter(p => p.postingType==2)
       .map(p => (p.parentId.get,p)).persist()
 
-    val grouped_rdd = question_rdd.join(answer_rdd).persist()
-
+    val grouped_rdd = question_rdd.join(answer_rdd)
     // Macht es zum Iterable[(Question,Answer)]
     grouped_rdd.groupByKey()
+
   }
 
 
@@ -130,7 +132,8 @@ class StackOverflow extends Serializable {
       }
     }
 
-    ???
+    val ret_rdd = scored.map(p => (firstLangInTag(p._1.tags, langs).get*langSpread, p._2))
+    ret_rdd
   }
 
 
@@ -188,6 +191,10 @@ class StackOverflow extends Serializable {
     val newMeans = means.clone() // you need to compute newMeans
 
     // TODO: Fill in the newMeans array
+    //pairing each vector with the index of the closest mean (its cluster);
+    //computing the new means by averaging the values of each cluster
+
+    //To implement these iterative steps, use the provided functions findClosest, averageVectors, and euclideanDistance
     val distance = euclideanDistance(means, newMeans)
 
     if (debug) {
