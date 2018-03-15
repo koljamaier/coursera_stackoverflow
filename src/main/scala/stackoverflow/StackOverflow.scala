@@ -213,8 +213,8 @@ class StackOverflow extends Serializable {
                  |  * desired distance: $kmeansEta
                  |  * means:""".stripMargin)
       for (idx <- 0 until kmeansKernels)
-      println(f"   ${means(idx).toString}%20s ==> ${newMeans(idx).toString}%20s  " +
-              f"  distance: ${euclideanDistance(means(idx), newMeans(idx))}%8.0f")
+        println(f"   ${means(idx).toString}%20s ==> ${newMeans(idx).toString}%20s  " +
+          f"  distance: ${euclideanDistance(means(idx), newMeans(idx))}%8.0f")
     }
 
     if (converged(distance))
@@ -290,16 +290,15 @@ class StackOverflow extends Serializable {
     ((comp1 / count).toInt, (comp2 / count).toInt)
   }
 
-  def calcMedian(inputList: Array[Int])= {
-    val count = inputList.size
-    val (lower, upper) = inputList.sortWith(_<_).splitAt(count / 2)
+  def calcMedian(inputList: Iterable[(Int, Int)])= {
+    val trans = inputList.map(x => x._2).toArray
+    val count = trans.size
+    val (lower, upper) = trans.sortWith(_<_).splitAt(count / 2)
     if (count % 2 == 0) {
-      lower.last + upper.head / 2
+      (lower.last + upper.head) / 2
     } else
       upper.head
   }
-
-
 
   //
   //
@@ -319,11 +318,10 @@ class StackOverflow extends Serializable {
 
     // vs besteht aus (LangIndex, HighScore)
     val median = closestGrouped.mapValues { vs =>
-      val langLabel: String   = langs(vs.groupBy(l => l._1).mapValues(_.size).maxBy(_._2)._1) // most common language in the cluster
-      val langPercent: Double = (vs.count(v => v._1 == langs.indexOf(langLabel))-1) * 100d / vs.size //-1 // für die Answer -1 // percent of the questions in the most common language
-      val clusterSize: Int    = vs.size
-      val testArr = vs.map(x=> x._2).toArray
-      val medianScore: Int    = calcMedian(testArr)
+    val langLabel: String   = langs((vs.groupBy(l => l._1).mapValues(_.size).maxBy(_._2)._1)/langSpread) // most common language in the cluster
+    val langPercent: Double = (vs.count(v => v._1 == langs.indexOf(langLabel))) * 100d / vs.size //-1 // für die Answer -1 // percent of the questions in the most common language
+    val clusterSize: Int    = vs.size
+    val medianScore: Int    = calcMedian(vs)
 
       (langLabel, langPercent, clusterSize, medianScore)
     }
