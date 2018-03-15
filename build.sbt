@@ -14,6 +14,7 @@ libraryDependencies += "junit" % "junit" % "4.10" % Test
 
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % "1.2.0" % "compile",
+  "org.apache.spark" %% "spark-sql" % "1.2.0",
   "org.apache.spark" %% "spark-streaming" % "1.2.0" % "compile",
   "org.apache.spark" % "spark-streaming-twitter_2.10" % "1.2.0"
 )
